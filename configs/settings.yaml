@@ -1,0 +1,28 @@
+# =============================
+# Halo Assistant Configurations
+# =============================
+
+audio:
+  sample_rate: 16000
+  duration: 5       # default recording time (seconds)
+  vad: false        # use voice activity detection (true/false)
+
+whisper:
+  model: base       # options: tiny, base, small, medium, large
+  device: cuda      # options: auto, cpu, cuda
+  fp16: true        # use half precision on GPU (faster)
+
+llm:
+  provider: ollama  # options: ollama, openai, local
+  model: mistral   # default model for Ollama
+  stream: false     # enable streaming response (future)
+  
+
+logging:
+  save_transcripts: true
+  transcript_dir: data/transcripts
+  log_dir: data/logs
+
+ui:
+  theme: dark       # options: dark, light
+  overlay: true     # floating overlay enabled

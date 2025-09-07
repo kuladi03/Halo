@@ -1,0 +1,1 @@
+nt(token, end="", flush=True)
