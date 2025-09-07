@@ -14,7 +14,7 @@ whisper:
 
 llm:
   provider: ollama  # options: ollama, openai, local
-  model: mistral   # default model for Ollama
+  model: qwen2.5:3b  # default model for Ollama / mistral / llama3.2:3b / phi3
   stream: false     # enable streaming response (future)
   
 
@@ -26,3 +26,11 @@ logging:
 ui:
   theme: dark       # options: dark, light
   overlay: true     # floating overlay enabled
+
+stt:
+  provider: vosk      # or whisper
+  model_path: "C:/Users/Hari/AppData/Local/vosk-model-en-in-0.5"
+
+api:
+  key: "AIzaSyDEaCtI0y9bKu8HWKf1seqVDH5hrEVx-eI"
+

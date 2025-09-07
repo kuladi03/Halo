@@ -1,21 +1,45 @@
-import whisper
-import torch
-import numpy as np
+# halo/core/stt.py
+import json
+import vosk
 from halo.utils.config_loader import config
 
-DEVICE = "cuda" if (config.whisper.device == "cuda" and torch.cuda.is_available()) else "cpu"
+# ===== CONFIG =====
+TARGET_RATE = 16000  # Vosk always expects 16k mono PCM
 
-print(f"Loading Whisper model ({config.whisper.model}) on {DEVICE}...")
+# Load Vosk model (make sure you have the correct model downloaded)
+MODEL_PATH = getattr(config.stt, "model_path", None)
+vosk_model = vosk.Model(MODEL_PATH)
 
-whisper_model = whisper.load_model(config.whisper.model, device=DEVICE)
 
-def transcribe_audio(audio_np: np.ndarray) -> str:
-    """Transcribe raw audio (numpy array) into text using Whisper."""
-    # Ensure float32, mono
-    if audio_np.ndim > 1:
-        audio_np = audio_np.mean(axis=1)  # convert to mono if stereo
-    audio_np = audio_np.astype(np.float32)
+def transcribe_audio(audio_bytes: bytes) -> str:
+    """
+    Transcribe a block of audio bytes into text using Vosk.
+    Use this for batch-style transcription of recorded audio.
+    Input must already be 16kHz mono PCM.
+    """
+    recognizer = vosk.KaldiRecognizer(vosk_model, TARGET_RATE)
 
-    # Run Whisper directly on array
-    result = whisper_model.transcribe(audio_np, fp16=(config.whisper.fp16 and DEVICE == "cuda"))
-    return result["text"]
+    if recognizer.AcceptWaveform(audio_bytes):
+        result = json.loads(recognizer.Result())
+        return result.get("text", "").strip()
+    else:
+        partial = json.loads(recognizer.PartialResult())
+        return partial.get("partial", "").strip()
+
+
+def transcribe_stream(recognizer, audio_bytes: bytes) -> dict:
+    """
+    Incremental transcription for continuous streaming.
+    Returns either a partial or final result.
+    Input must already be 16kHz mono PCM.
+    """
+    if recognizer.AcceptWaveform(audio_bytes):
+        return {
+            "type": "final",
+            "text": json.loads(recognizer.Result()).get("text", "").strip(),
+        }
+    else:
+        return {
+            "type": "partial",
+            "text": json.loads(recognizer.PartialResult()).get("partial", "").strip(),
+        }

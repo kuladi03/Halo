@@ -1,4 +1,4 @@
-import sys
+import numpy as np
 import os
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
@@ -8,6 +8,10 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt6.QtGui import QIcon , QTextCursor
 from halo.core.llm import query_ollama
+from halo.core.pipeline import start_new_session, get_transcript_context, record_continuous
+import threading
+from halo.core.pipeline import get_transcript_context, _save_to_file
+from halo.core.listener import stop_streaming
 
 class LLMWorker(QThread):
     token_received = pyqtSignal(str)
@@ -16,15 +20,22 @@ class LLMWorker(QThread):
     def __init__(self, prompt):
         super().__init__()
         self.prompt = prompt
+        self._stop_event = threading.Event()  # <--- Add this
 
     def run(self):
         try:
             for token in query_ollama(self.prompt, stream=True):
+                if self._stop_event.is_set():  # <--- Stop mid-stream
+                    break
                 self.token_received.emit(token)
             self.finished.emit()
         except Exception as e:
             self.token_received.emit(f"[Error] {str(e)}")
             self.finished.emit()
+
+    def stop(self):  # <--- Method to stop streaming
+        self._stop_event.set()
+
 
 # ----------------- Clickable QLabel -----------------
 class ClickableLabel(QLabel):
@@ -58,12 +69,40 @@ class ChatPanel(QWidget):
         # Messages display
         # in your __init__:
         self.messages = []           # Python list for history
-        self.chat_box = QTextEdit()  # UI widget for display
+        # Inside ChatPanel.__init__(), replace the chat_box definition with:
+        self.chat_box = QTextEdit()
         self.chat_box.setReadOnly(True)
-        self.chat_box.setStyleSheet("background: transparent; color: white; border: none;")
+        self.chat_box.setStyleSheet("""
+            QTextEdit {
+                background: rgba(17,17,17,180);  /* semi-transparent dark */
+                color: #e5e5e5;
+                font-family: "Fira Code", "Consolas", "Monaco", monospace;
+                font-size: 13px;
+                border: none;
+                border-radius: 12px;
+                padding: 8px;
+                backdrop-filter: blur(8px);  /* blurry effect */
+            }
+            QTextEdit QScrollBar:vertical {
+                width: 8px;
+                background: rgba(0,0,0,0);
+            }
+            QTextEdit QScrollBar::handle:vertical {
+                background: rgba(255,255,255,0.3);
+                border-radius: 4px;
+            }
+            QTextEdit QScrollBar::handle:vertical:hover {
+                background: rgba(255,255,255,0.5);
+            }
+        """)
         self.chat_box.setText("Halo is ready to assist you\n")
         layout.addWidget(self.chat_box, 1)
 
+        self.chat_box.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse |
+            Qt.TextInteractionFlag.TextSelectableByKeyboard |
+            Qt.TextInteractionFlag.LinksAccessibleByMouse
+        )
 
         # Suggestion label
         self.suggestion_label = ClickableLabel("💡 What should I say next?")
@@ -106,6 +145,7 @@ class ChatPanel(QWidget):
 
         self.container.setLayout(layout)
 
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
@@ -121,27 +161,32 @@ class ChatPanel(QWidget):
         if not user_text:
             return
 
-        from halo.core.pipeline import get_transcript_context
-        context = get_transcript_context()
-        full_query = f"{context}\nUser: {user_text}"
+        # Include incremental transcript + chat messages for context
+        transcript_context = get_transcript_context()  # all finalized speech
+        recent_messages = "\n".join(self.messages[-5:])  # recent chat lines
 
-        # add user message
+        # Combine incremental transcript + recent chat
+        full_query = f"{transcript_context}\n{recent_messages}\nUser: {user_text}"
+
+        # Add user message to chat panel
         self.messages.append(f"User: {user_text}")
         self.messages.append("Halo: ")  # placeholder
 
         self.current_reply_index = len(self.messages) - 1
         self.reply_text = ""
 
-        # update UI immediately
+        # Update UI immediately
         self.update_chat_display()
 
-        # start worker for streaming
+        # Start worker
         self.worker = LLMWorker(full_query)
         self.worker.token_received.connect(self.on_token_received)
         self.worker.finished.connect(self.on_reply_finished)
         self.worker.start()
 
         self.input.clear()
+
+
 
     def on_token_received(self, token):
             self.reply_text += token
@@ -167,32 +212,35 @@ class ChatPanel(QWidget):
         self.input.setText(text)
         self.send_message()
 
-# ----------------- Listener Thread -----------------
-from halo.core.pipeline import record_continuous
+    def stop_current_reply(self):
+    # Stop the running LLaMA worker thread
+        if hasattr(self, "worker") and self.worker.isRunning():
+            self.worker.stop()
+            self.worker.wait()  # ensures thread fully stops
 
-class ListenerThread(QThread):
-    new_text = pyqtSignal(str)
-    def __init__(self):
-        super().__init__()
-        self._running = True
+        # Replace partial AI reply with [Stopped] message
+        if hasattr(self, "current_reply_index"):
+            self.messages[self.current_reply_index] = "Halo: [Stopped]"
+            self.reply_text = ""
+            self.update_chat_display()
 
-    def run(self):
-        while self._running:
-            text = record_continuous()
-            if text.strip():
-                self.new_text.emit(text)
+        # Remove unfinished AI placeholder at the end, so next query is fresh
+        if len(self.messages) > 0 and self.messages[-1] == "Halo: ":
+            self.messages.pop()
 
-    def stop(self):
-        self._running = False
+
 
 # ----------------- Floating Overlay -----------------
 class FloatingOverlay(QWidget):
+    update_transcript_signal = pyqtSignal(str)
     def __init__(self):
         super().__init__()
 
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setGeometry(1200, 50, 350, 70)
+        self.setGeometry(1200, 50, 550, 70)
+        self.update_transcript_signal.connect(self._update_transcript_ui)
+
         self.drag_position = None
 
         self.container = QFrame(self)
@@ -203,7 +251,7 @@ class FloatingOverlay(QWidget):
                 border: 1px solid rgba(255,255,255,50);
             }
         """)
-        self.container.setGeometry(0, 0, 350, 70)
+        self.container.setGeometry(0, 0, 550, 70)
 
         layout = QHBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
@@ -263,7 +311,15 @@ class FloatingOverlay(QWidget):
         self.chat_btn.clicked.connect(self.toggle_chat)
         layout.addWidget(self.chat_btn)
 
+        # Stop LLaMA button
+        self.stop_llama_btn = QPushButton("Stop AI")
+        self.stop_llama_btn.setStyleSheet(self.button_style())
+        self.stop_llama_btn.setFixedHeight(30)
+        self.stop_llama_btn.clicked.connect(self.stop_llama)
+        layout.addWidget(self.stop_llama_btn)
+
         self.container.setLayout(layout)
+
 
         # Chat panel
         self.chat_panel = ChatPanel()
@@ -293,6 +349,80 @@ class FloatingOverlay(QWidget):
         self.restore_btn.clicked.connect(self.show_overlay)
         self.restore_btn.show()
 
+        # ----------------- Transcript panel -----------------
+        self.transcript_panel = QTextEdit()
+        self.transcript_panel.setReadOnly(True)
+        self.transcript_panel.setStyleSheet("""
+            QTextEdit {
+                background: rgba(30,30,30,220);
+                color: #ffffff;
+                border-radius: 12px;
+            }
+        """)
+        self.transcript_panel.setGeometry(10, 90, 330, 200)  # adjust size/position
+        self.transcript_panel.hide()  # hide by default
+
+        # Button to toggle transcript panel
+        self.transcript_btn = QPushButton("Show Transcript")
+        self.transcript_btn.setStyleSheet(self.button_style())
+        self.transcript_btn.setFixedHeight(30)
+        self.transcript_btn.clicked.connect(self.toggle_transcript_panel)
+        layout.addWidget(self.transcript_btn)
+
+    def stop_llama(self):
+        if self.chat_panel:
+            self.chat_panel.stop_current_reply()
+
+    def _update_transcript_ui(self, text):
+    # Send transcript to the new panel, not chat_panel
+        self.transcript_panel.setPlainText(text)
+        self.transcript_panel.verticalScrollBar().setValue(
+            self.transcript_panel.verticalScrollBar().maximum()
+        )
+
+
+    def _record_loop(self):
+        """
+        Consume results from record_continuous().
+
+        - result is a dict: {"type": "partial" | "final", "text": str}
+        - On partial: show live line appended to current final transcript (not saved).
+        - On final: update UI with saved transcript (pipeline already saved it).
+        """
+        for result in record_continuous():
+            if self._stop_event.is_set():
+                # ensure the mic stream is shut down inside the generator too
+                stop_streaming()
+                break
+
+            if self.is_paused:
+                QtCore.QThread.msleep(100)
+                continue
+
+            # Backward compatibility if anything yields plain strings
+            if not isinstance(result, dict):
+                text = str(result).strip()
+                if text:
+                    full_transcript = get_transcript_context()  # only finals
+                    # show finals + the new line (treated as final)
+                    combined = (full_transcript + ("\n" if full_transcript else "") + text).strip()
+                    self.update_transcript_signal.emit(combined)
+                continue
+
+            text = result.get("text", "").strip()
+            if not text:
+                continue
+
+            if result.get("type") == "partial":
+                # Show current saved finals + a live partial preview line
+                finals = get_transcript_context()  # contains only finalized text
+                live_view = (finals + ("\n" if finals else "") + f"[…] {text}").strip()
+                self.update_transcript_signal.emit(live_view)
+            else:
+                # Final result: pipeline already saved it; re-render from cache
+                finals = get_transcript_context()
+                self.update_transcript_signal.emit(finals)
+
     def button_style(self):
         return """
             QPushButton {
@@ -318,40 +448,64 @@ class FloatingOverlay(QWidget):
     # Listen / Pause / Resume
     def toggle_listening_state(self):
         if not self.is_listening:
+            start_new_session()  # start fresh transcript
             self.is_listening = True
             self.is_paused = False
             self.listen_btn.setText("Pause")
             self.stop_btn.show()
-            self.listener_thread = ListenerThread()
-            self.listener_thread.new_text.connect(self.append_transcript)
-            self.listener_thread.start()
+            self._stop_event = threading.Event()
+
+            # Start recording thread
+            self.recording_thread = threading.Thread(target=self._record_loop, daemon=True)
+            self.recording_thread.start()
             self.blink_timer.start(500)
         else:
-            if not self.is_paused:
-                self.is_paused = True
-                self.listen_btn.setText("Resume")
+            # Toggle pause/resume
+            self.is_paused = not self.is_paused
+            self.listen_btn.setText("Resume" if self.is_paused else "Pause")
+            if self.is_paused:
                 self.blink_timer.stop()
             else:
-                self.is_paused = False
-                self.listen_btn.setText("Pause")
                 self.blink_timer.start(500)
 
     def stop_all(self):
-        self.is_listening = False
-        self.is_paused = False
-        self.listen_btn.setText("Listen")
-        self.stop_btn.hide()
-        self.blink_timer.stop()
-        self.status_dot.setStyleSheet("background-color: #10b981; border-radius: 6px;")
-        if hasattr(self, "listener_thread"):
-            self.listener_thread.stop()
-            self.listener_thread.quit()
-            self.listener_thread.wait()
+        # Stop recording
+        if self.is_listening:
+            self.is_listening = False
+            self.is_paused = False
+            self.listen_btn.setText("Listen")
+            self.stop_btn.hide()
+            self.blink_timer.stop()
+            self.status_dot.setStyleSheet("background-color: #10b981; border-radius: 6px;")
+            if hasattr(self, "_stop_event"):
+                self._stop_event.set()
+            if hasattr(self, "recording_thread") and self.recording_thread.is_alive():
+                self.recording_thread.join()
+
+        # Stop any ongoing LLaMA response
+        if self.chat_panel:
+            self.chat_panel.stop_current_reply()  # <-- calls updated method
+
+
 
     def blink_dot(self):
         self.blink_state = not self.blink_state
         color = "#ef4444" if self.blink_state else "#10b981"
         self.status_dot.setStyleSheet(f"background-color: {color}; border-radius: 6px;")
+
+    def toggle_transcript_panel(self):
+        if self.transcript_panel.isVisible():
+            self.transcript_panel.hide()
+            self.transcript_btn.setText("Show Transcript")
+        else:
+            self.transcript_panel.show()
+            self.transcript_btn.setText("Hide Transcript")
+
+    def stop_llama(self):
+        if self.chat_panel:
+            self.chat_panel.stop_current_reply()
+
+
 
     # Chat toggle
     def toggle_chat(self):

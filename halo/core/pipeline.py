@@ -1,63 +1,78 @@
-import torch
-from halo.core.listener import record_until_silence
-from halo.core.stt import transcribe_audio
-from halo.core.llm import query_ollama
+# halo/core/pipeline.py
+
+import os
+import datetime
+import json
+from halo.core.listener import start_stream, listen_continuous, stop_streaming
 
 # ----------------- Transcript Cache -----------------
 _transcript_cache = []
 
+# Transcript folder
+TRANSCRIPTS_DIR = os.path.join("data", "transcripts")
+os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
+
+# Global session counter (increments each time Listen starts fresh)
+_session_counter = 0
+TRANSCRIPT_FILE = None
+
+
+def _new_session_file():
+    """
+    Create a new transcript file for each Listen → Stop session.
+    Example: meeting-20250907-1.txt, meeting-20250907-2.txt
+    """
+    global _session_counter, TRANSCRIPT_FILE, _transcript_cache
+    _session_counter += 1
+    today = datetime.datetime.now().strftime("%Y%m%d")
+    TRANSCRIPT_FILE = os.path.join(
+        TRANSCRIPTS_DIR, f"meeting-{today}-{_session_counter}.txt"
+    )
+    _transcript_cache = []  # reset cache for new session
+    with open(TRANSCRIPT_FILE, "w", encoding="utf-8") as f:
+        f.write(f"# Halo Transcript - Session {_session_counter} ({today})\n\n")
+    return TRANSCRIPT_FILE
+
+
+def _save_to_file(text: str):
+    """Append a single line to the active transcript file."""
+    if not TRANSCRIPT_FILE:
+        _new_session_file()  # lazy init if not created yet
+    with open(TRANSCRIPT_FILE, "a", encoding="utf-8") as f:
+        f.write(text + "\n")
+
+
+def start_new_session():
+    """Explicitly start a new transcript session."""
+    return _new_session_file()
+
+
 def record_continuous():
     """
-    Record speech until silence, transcribe it, 
-    and store in the global transcript cache.
-    Returns the transcribed text.
+    Start continuous recording and yield both partial + final transcripts.
+    - Partials are yielded to UI only (not saved).
+    - Finals are saved + cached + yielded to AI.
     """
-    audio = record_until_silence()
-    text = transcribe_audio(audio)
-    if text.strip():
-        _transcript_cache.append(text)
-    return text
+    stream = start_stream()
+    stream.start()
+
+    try:
+        for result in listen_continuous():
+            if result["type"] == "final" and result["text"].strip():
+                _transcript_cache.append(result["text"])
+                _save_to_file(result["text"])
+                yield {"type": "final", "text": result["text"]}
+            elif result["type"] == "partial" and result["text"].strip():
+                # only stream out, don't save or cache
+                yield {"type": "partial", "text": result["text"]}
+    finally:
+        stop_streaming()
+        stream.stop()
+        stream.close()
+
 
 def get_transcript_context():
     """
-    Return the full transcript accumulated so far.
+    Return the full transcript accumulated so far in this session.
     """
     return " ".join(_transcript_cache)
-
-# ----------------- Legacy CLI loop -----------------
-def run_once():
-    """Run a single Halo cycle: Listen → STT → LLM → Reply"""
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"🚀 Running one Halo cycle on {device}")
-
-    # Step 1: Listen until silence
-    audio = record_until_silence()
-
-    # Step 2: Transcribe with Whisper
-    text = transcribe_audio(audio)
-    print(f"📝 You said: {text}")
-
-    if not text.strip():
-        print("❌ No speech detected, try again...")
-        return {"text": "", "reply": ""}
-
-    # Step 3: Query Ollama
-    print("🤖 Thinking...")
-    reply = query_ollama(text)
-    print(f"💡 Halo: {reply}")
-
-    return {"text": text, "reply": reply}
-
-def run():
-    """Legacy CLI loop: Keeps running until user says 'exit' or 'quit'"""
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"🚀 Starting Halo (running on {device})")
-
-    while True:
-        result = run_once()
-        text, reply = result["text"], result["reply"]
-
-        # Exit condition
-        if "exit" in text.lower() or "quit" in text.lower():
-            print("👋 Goodbye from Halo!")
-            break
