@@ -31,6 +31,3 @@ stt:
   provider: vosk      # or whisper
   model_path: "C:/Users/Hari/AppData/Local/vosk-model-en-in-0.5"
 
-api:
-  key: "AIzaSyDEaCtI0y9bKu8HWKf1seqVDH5hrEVx-eI"
-
