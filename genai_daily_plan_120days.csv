@@ -1,0 +1,297 @@
+Day,Goal,Tasks,Time Allocation,Deliverable,Status
+1,Python Basics I,"- [ ] Learn variables, data types, operators
+- [ ] Solve 5 coding problems (loops & strings)
+- [ ] Push notebook to GitHub",1h Learn | 2h Build | 1h Notes,python_basics.ipynb,Not Started
+2,Python Basics II,"- [ ] Learn conditionals, functions
+- [ ] Solve 5 coding problems (functions & logic)
+- [ ] Push notebook to GitHub",1h Learn | 2h Build | 1h Notes,python_functions.ipynb,Not Started
+3,Python OOP,"- [ ] Learn classes & objects
+- [ ] Build a small BankAccount class
+- [ ] Push notebook to GitHub",1h Learn | 2h Build | 1h Notes,oop_basics.ipynb,Not Started
+4,Python File Handling,"- [ ] Learn file read/write
+- [ ] Build a file-based todo list app
+- [ ] Push project to GitHub",1h Learn | 2h Build | 1h Notes,todo_cli.py,Not Started
+5,Git + GitHub,"- [ ] Learn git init/add/commit/push
+- [ ] Create repo for roadmap projects
+- [ ] Push previous projects",1h Learn | 2h Build | 1h Notes,repo_setup_complete,Not Started
+6,Mini Project: Expense Tracker,"- [ ] Plan CLI expense tracker
+- [ ] Code expense tracker with add/remove/display
+- [ ] Push with README",1h Learn | 2h Build | 1h Notes,expense_tracker.py,Not Started
+7,Review + Practice,"- [ ] Revise Python basics
+- [ ] Solve 10 coding problems
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week1.md,Not Started
+8,NumPy Basics,"- [ ] Learn arrays, slicing, broadcasting
+- [ ] Practice 10 array problems
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,numpy_basics.ipynb,Not Started
+9,Pandas Basics I,"- [ ] Learn DataFrame creation, indexing
+- [ ] Load CSV + explore
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pandas_basics.ipynb,Not Started
+10,Pandas Basics II,"- [ ] Learn groupby, merge, joins
+- [ ] Analyze dataset (sales/weather)
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pandas_advanced.ipynb,Not Started
+11,Matplotlib Basics,"- [ ] Learn line/bar/scatter plots
+- [ ] Visualize dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,matplotlib_basics.ipynb,Not Started
+12,Mini Project: Data Analyzer,"- [ ] Load dataset
+- [ ] Perform cleaning, analysis, plotting
+- [ ] Push with README",1h Learn | 2h Build | 1h Notes,data_analyzer.ipynb,Not Started
+13,Seaborn Basics,"- [ ] Learn heatmaps, pairplots
+- [ ] Visualize dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,seaborn_basics.ipynb,Not Started
+14,Review + Practice,"- [ ] Revise NumPy/Pandas
+- [ ] Analyze Kaggle dataset
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week2.md,Not Started
+15,ML Intro,"- [ ] Understand supervised vs unsupervised
+- [ ] Implement Linear Regression
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,linear_regression.ipynb,Not Started
+16,Logistic Regression,"- [ ] Learn classification
+- [ ] Implement spam/not spam classifier
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,logistic_regression.ipynb,Not Started
+17,Decision Trees,"- [ ] Learn splits, entropy
+- [ ] Train tree on Iris dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,decision_tree.ipynb,Not Started
+18,Model Evaluation,"- [ ] Learn accuracy, precision, recall, F1
+- [ ] Evaluate models
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,model_evaluation.ipynb,Not Started
+19,Mini Project: House Price Prediction,"- [ ] Use regression on housing dataset
+- [ ] Plot predictions
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,house_prices.ipynb,Not Started
+20,KNN Classifier,"- [ ] Learn distance metric
+- [ ] Classify handwritten digits
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,knn_digits.ipynb,Not Started
+21,Review + Practice,"- [ ] Revise ML basics
+- [ ] Solve 10 ML practice problems
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week3.md,Not Started
+22,Naive Bayes,"- [ ] Learn probability concepts
+- [ ] Implement spam classifier
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,naive_bayes.ipynb,Not Started
+23,SVM,"- [ ] Learn hyperplanes, kernels
+- [ ] Train SVM on dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,svm_basics.ipynb,Not Started
+24,Clustering,"- [ ] Learn KMeans
+- [ ] Cluster customer dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,kmeans_clustering.ipynb,Not Started
+25,PCA,"- [ ] Learn dimensionality reduction
+- [ ] Apply PCA on dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pca_basics.ipynb,Not Started
+26,Mini Project: Spam Classifier,"- [ ] Prepare dataset
+- [ ] Train/test split
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,spam_classifier.ipynb,Not Started
+27,ML Pipeline,"- [ ] Learn pipeline in sklearn
+- [ ] Build preprocessing + model pipeline
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,ml_pipeline.ipynb,Not Started
+28,Review + Practice,"- [ ] Revise ML algorithms
+- [ ] Work on Kaggle dataset
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week4.md,Not Started
+29,NN Basics,"- [ ] Learn perceptron, forward pass
+- [ ] Implement simple NN in PyTorch
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,nn_basics.ipynb,Not Started
+30,Loss Functions,"- [ ] Learn MSE, cross-entropy
+- [ ] Experiment with loss functions
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,loss_functions.ipynb,Not Started
+31,Backpropagation,"- [ ] Understand gradients
+- [ ] Implement manual backprop
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,backprop.ipynb,Not Started
+32,Optimizers,"- [ ] Learn SGD, Adam
+- [ ] Experiment on small dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,optimizers.ipynb,Not Started
+33,Mini Project: Digit Recognizer,"- [ ] Train NN on MNIST
+- [ ] Plot accuracy curve
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,mnist_classifier.ipynb,Not Started
+34,Regularization,"- [ ] Learn dropout, weight decay
+- [ ] Experiment on MNIST
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,regularization.ipynb,Not Started
+35,Review + Practice,"- [ ] Revise NN basics
+- [ ] Practice PyTorch coding
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week5.md,Not Started
+36,CNN Basics,"- [ ] Learn convolutions, filters
+- [ ] Implement CNN on MNIST
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,cnn_basics.ipynb,Not Started
+37,Image Augmentation,"- [ ] Learn transforms
+- [ ] Augment CIFAR-10 dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,augmentation.ipynb,Not Started
+38,CNN Advanced,"- [ ] Add pooling, dropout
+- [ ] Improve accuracy on CIFAR-10
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,cnn_cifar10.ipynb,Not Started
+39,RNN Basics,"- [ ] Learn sequences, hidden state
+- [ ] Implement RNN on text data
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,rnn_basics.ipynb,Not Started
+40,LSTM/GRU,"- [ ] Learn long-term dependencies
+- [ ] Train LSTM on text generation
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,lstm_textgen.ipynb,Not Started
+41,Mini Project: Image Classifier,"- [ ] Train CNN on CIFAR-10
+- [ ] Evaluate accuracy
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,cifar10_classifier.ipynb,Not Started
+42,Review + Practice,"- [ ] Revise CNN/RNN concepts
+- [ ] Practice PyTorch coding
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week6.md,Not Started
+43,Autoencoders,"- [ ] Learn encoder/decoder
+- [ ] Implement simple AE
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,autoencoder.ipynb,Not Started
+44,Denoising AE,"- [ ] Implement AE for noisy images
+- [ ] Test on MNIST
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,denoising_ae.ipynb,Not Started
+45,Variational AE,"- [ ] Learn latent space
+- [ ] Implement VAE
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,vae.ipynb,Not Started
+46,VAE Applications,"- [ ] Generate new samples
+- [ ] Visualize latent space
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,vae_samples.ipynb,Not Started
+47,Mini Project: VAE Digits,"- [ ] Train VAE on MNIST
+- [ ] Generate digits
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,vae_digits.ipynb,Not Started
+48,Compare AE vs VAE,"- [ ] Analyze reconstruction quality
+- [ ] Document differences
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,ae_vs_vae.ipynb,Not Started
+49,Review + Practice,"- [ ] Revise AE/VAE concepts
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week7.md,Not Started
+50,GAN Basics,"- [ ] Learn generator/discriminator
+- [ ] Implement simple GAN
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,gan_basics.ipynb,Not Started
+51,GAN Training Tricks,"- [ ] Learn stability tricks
+- [ ] Experiment with batch norm
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,gan_training.ipynb,Not Started
+52,DCGAN,"- [ ] Implement DCGAN for images
+- [ ] Train on MNIST
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,dcgan_mnist.ipynb,Not Started
+53,GAN Evaluation,"- [ ] Visualize generated samples
+- [ ] Compare epochs
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,gan_eval.ipynb,Not Started
+54,Mini Project: GAN Digits,"- [ ] Train GAN on MNIST
+- [ ] Generate digits
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,gan_digits.ipynb,Not Started
+55,GAN Applications,"- [ ] Explore use cases (faces, art)
+- [ ] Document findings
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,gan_apps.ipynb,Not Started
+56,Review + Practice,"- [ ] Revise GANs
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week8.md,Not Started
+57,Transformer Basics,"- [ ] Learn attention mechanism
+- [ ] Implement scaled dot-product attention
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,attention_basics.ipynb,Not Started
+58,Transformer Architecture,"- [ ] Study encoder-decoder
+- [ ] Visualize architecture
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,transformer_architecture.ipynb,Not Started
+59,Hugging Face Basics,"- [ ] Load pretrained model
+- [ ] Try text generation
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,hf_basics.ipynb,Not Started
+60,Tokenization,"- [ ] Learn BPE/WordPiece
+- [ ] Experiment with tokenizer
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,tokenizer_basics.ipynb,Not Started
+61,Mini Project: Summarizer,"- [ ] Build text summarizer with HF pipeline
+- [ ] Test on news articles
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,summarizer.ipynb,Not Started
+62,Embeddings,"- [ ] Generate embeddings
+- [ ] Visualize with PCA
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,embeddings.ipynb,Not Started
+63,Review + Practice,"- [ ] Revise Transformers
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week9.md,Not Started
+64,Prompt Engineering,"- [ ] Learn zero-shot, few-shot
+- [ ] Experiment with GPT API
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,prompt_eng.ipynb,Not Started
+65,LLM APIs,"- [ ] Use OpenAI API
+- [ ] Generate responses
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,openai_api.ipynb,Not Started
+66,Hugging Face Hub,"- [ ] Search & load models
+- [ ] Experiment with smaller LLMs
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,hf_hub.ipynb,Not Started
+67,Custom Dataset,"- [ ] Prepare dataset for LLM
+- [ ] Test small fine-tuning
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,dataset_prep.ipynb,Not Started
+68,Mini Project: Q&A Chatbot,"- [ ] Build Q&A bot with GPT/HF
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,qa_chatbot.ipynb,Not Started
+69,Evaluation,"- [ ] Evaluate chatbot with test Q&A
+- [ ] Document results",1h Learn | 2h Build | 1h Notes,chatbot_eval.ipynb,Not Started
+70,Review + Practice,"- [ ] Revise APIs & prompts
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week10.md,Not Started
+71,LangChain Basics,"- [ ] Install, setup
+- [ ] Build simple chain
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,langchain_basics.ipynb,Not Started
+72,LangChain Memory,"- [ ] Experiment with conversation memory
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,langchain_memory.ipynb,Not Started
+73,LangChain Agents,"- [ ] Learn tools & agents
+- [ ] Build small agent
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,langchain_agent.ipynb,Not Started
+74,PDF Loader,"- [ ] Load PDF docs
+- [ ] Chunk & embed text
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pdf_loader.ipynb,Not Started
+75,Mini Project: PDF Q&A Bot,"- [ ] Build chatbot over PDF
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,pdf_qa_bot.ipynb,Not Started
+76,Evaluation,"- [ ] Test PDF bot on multiple docs
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pdf_qa_eval.ipynb,Not Started
+77,Review + Practice,"- [ ] Revise LangChain
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week11.md,Not Started
+78,Vector DB Basics,"- [ ] Learn embeddings search
+- [ ] Implement FAISS index
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,faiss_basics.ipynb,Not Started
+79,Pinecone Intro,"- [ ] Set up Pinecone
+- [ ] Index documents
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,pinecone_intro.ipynb,Not Started
+80,Weaviate Intro,"- [ ] Experiment with Weaviate
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,weaviate_intro.ipynb,Not Started
+81,RAG Basics,"- [ ] Build retrieval + generation pipeline
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,rag_basics.ipynb,Not Started
+82,Mini Project: Company Knowledge Bot,"- [ ] Build bot over company docs
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,company_bot.ipynb,Not Started
+83,Evaluation,"- [ ] Test retrieval quality
+- [ ] Document results",1h Learn | 2h Build | 1h Notes,rag_eval.ipynb,Not Started
+84,Review + Practice,"- [ ] Revise RAG concepts
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week12.md,Not Started
+85,Fine-tuning Basics,"- [ ] Learn full vs parameter-efficient fine-tuning
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,finetune_basics.ipynb,Not Started
+86,LoRA,"- [ ] Implement LoRA on small model
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,lora.ipynb,Not Started
+87,PEFT,"- [ ] Use Hugging Face PEFT library
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,peft.ipynb,Not Started
+88,Dataset Prep,"- [ ] Prepare custom dataset
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,custom_dataset.ipynb,Not Started
+89,Mini Project: Fine-tune LLaMA,"- [ ] Fine-tune small LLaMA on dataset
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,finetune_llama.ipynb,Not Started
+90,Evaluation,"- [ ] Test fine-tuned model
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,finetune_eval.ipynb,Not Started
+91,Review + Practice,"- [ ] Revise fine-tuning methods
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week13.md,Not Started
+92,CLIP Basics,"- [ ] Learn text-image alignment
+- [ ] Experiment with CLIP
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,clip_basics.ipynb,Not Started
+93,Diffusion Models,"- [ ] Learn stable diffusion basics
+- [ ] Generate images
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,diffusion_basics.ipynb,Not Started
+94,TTS Basics,"- [ ] Experiment with text-to-speech
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,tts_basics.ipynb,Not Started
+95,STT Basics,"- [ ] Experiment with speech-to-text
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,stt_basics.ipynb,Not Started
+96,Mini Project: Text-to-Image App,"- [ ] Build app using Stable Diffusion API
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,text2image_app.ipynb,Not Started
+97,Evaluation,"- [ ] Test app with prompts
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,text2image_eval.ipynb,Not Started
+98,Review + Practice,"- [ ] Revise multimodal models
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week14.md,Not Started
+99,FastAPI Basics,"- [ ] Build hello world API
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,fastapi_basics.ipynb,Not Started
+100,Docker Basics,"- [ ] Containerize small app
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,docker_basics.ipynb,Not Started
+101,Streamlit Basics,"- [ ] Build Streamlit app
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,streamlit_basics.ipynb,Not Started
+102,Deployment,"- [ ] Deploy PDF bot via FastAPI
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,deploy_pdfbot.ipynb,Not Started
+103,Mini Project: Deployed RAG Bot,"- [ ] Deploy RAG bot on cloud
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,rag_deploy.ipynb,Not Started
+104,Testing Deployment,"- [ ] Test API endpoints
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,deploy_test.ipynb,Not Started
+105,Review + Practice,"- [ ] Revise deployment workflow
+- [ ] Document learnings",1h Learn | 2h Build | 1h Notes,notes_week15.md,Not Started
+106,Portfolio Setup,"- [ ] Organize GitHub repos
+- [ ] Add READMEs
+- [ ] Push updates",1h Learn | 2h Build | 1h Notes,portfolio_setup,Not Started
+107,Resume,"- [ ] Write AI-focused resume
+- [ ] Push PDF",1h Learn | 2h Build | 1h Notes,resume.pdf,Not Started
+108,LinkedIn,"- [ ] Optimize LinkedIn profile
+- [ ] Document links",1h Learn | 2h Build | 1h Notes,linkedin_update,Not Started
+109,Mock Interviews,"- [ ] Solve 5 LeetCode problems
+- [ ] Practice interview Qs",1h Learn | 2h Build | 1h Notes,interview_prep.md,Not Started
+110,Final Capstone: AI Assistant,"- [ ] Build assistant with RAG + memory + API
+- [ ] Push project",1h Learn | 2h Build | 1h Notes,ai_assistant.ipynb,Not Started
+111,Capstone Testing,"- [ ] Test assistant with sample queries
+- [ ] Push notebook",1h Learn | 2h Build | 1h Notes,ai_assistant_eval.ipynb,Not Started
+112,Wrap-up,"- [ ] Review journey
+- [ ] Document final learnings",1h Learn | 2h Build | 1h Notes,final_notes.md,Not Started

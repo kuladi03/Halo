@@ -27,13 +27,16 @@ class OllamaSession:
 # Global persistent session for Halo
 ollama_session = OllamaSession(model=config.llm.model)
 
-def query_ollama(prompt, stream=False):
+def query_ollama(prompt, stream=False, model=None):
     """
     Wrapper function for querying Ollama.
     - stream=True  → returns generator
     - stream=False → returns plain string
     """
+    session_model = model or config.llm.model  # Use selected model if given
+    temp_session = OllamaSession(model=session_model)
+
     if stream:
-        return ollama_session.query_stream(prompt)
+        return temp_session.query_stream(prompt)
     else:
-        return ollama_session.query_full(prompt)
+        return temp_session.query_full(prompt)

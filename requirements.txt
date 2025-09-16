@@ -1,0 +1,27 @@
+# ==============================
+# Halo Assistant Requirements
+# ==============================
+
+# --- Core ---
+pyyaml>=6.0
+numpy>=1.23
+
+# --- UI / App ---
+streamlit>=1.37
+pyqt5>=5.15
+pyqt5-tools>=5.15
+keyboard>=0.13
+
+# --- Audio ---
+sounddevice>=0.4
+pyaudio>=0.2
+
+# --- AI / ML ---
+# PyTorch GPU build (used if you want Ollama/TTS with torch)
+# Works for GTX 1650 (CUDA 11.8)
+torch==2.2.2+cu118
+torchaudio==2.2.2+cu118
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+# --- Speech-to-Text (STT) ---
+vosk>=0.3.45

@@ -1,31 +1,35 @@
 import numpy as np
 import os
+import re
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLabel, QTextEdit, QFrame,
-    QVBoxLayout, QHBoxLayout, QSizeGrip
+    QVBoxLayout, QHBoxLayout, QSizeGrip , QComboBox
 )
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
-from PyQt6.QtGui import QIcon , QTextCursor
+from PyQt6.QtGui import QIcon , QTextCursor , QClipboard
 from halo.core.llm import query_ollama
 from halo.core.pipeline import start_new_session, get_transcript_context, record_continuous
 import threading
 from halo.core.pipeline import get_transcript_context, _save_to_file
 from halo.core.listener import stop_streaming
+import ctypes
+
 
 class LLMWorker(QThread):
     token_received = pyqtSignal(str)
     finished = pyqtSignal()
 
-    def __init__(self, prompt):
+    def __init__(self, query_dict):
         super().__init__()
-        self.prompt = prompt
-        self._stop_event = threading.Event()  # <--- Add this
+        self.prompt = query_dict["prompt"]
+        self.model = query_dict.get("model", "qwen2.5:3b")  # default fallback
+        self._stop_event = threading.Event()
 
     def run(self):
         try:
-            for token in query_ollama(self.prompt, stream=True):
-                if self._stop_event.is_set():  # <--- Stop mid-stream
+            for token in query_ollama(self.prompt, model=self.model, stream=True):
+                if self._stop_event.is_set():
                     break
                 self.token_received.emit(token)
             self.finished.emit()
@@ -47,8 +51,15 @@ class ClickableLabel(QLabel):
 class ChatPanel(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
+        )
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
+        self._protect_window()
+
         self.setGeometry(1000, 100, 400, 500)
         self.drag_position = None
 
@@ -122,6 +133,18 @@ class ChatPanel(QWidget):
         """)
         layout.addWidget(self.input)
 
+        self.model_selector = QComboBox()
+        self.model_selector.addItems(["gemma3:4b", "qwen2.5:3b", "phi3"])
+        self.model_selector.setStyleSheet("""
+            QComboBox {
+                background: rgba(255,255,255,30);
+                border-radius: 10px;
+                color: white;
+                padding: 4px;
+            }
+        """)
+        layout.addWidget(self.model_selector)
+
         # Send button
         self.send_btn = QPushButton("Send")
         self.send_btn.setStyleSheet("""
@@ -133,6 +156,12 @@ class ChatPanel(QWidget):
             }
             QPushButton:hover { background: #5a67d8; }
         """)
+
+        self.copy_code_btn = QPushButton("Copy Last Code")
+        self.copy_code_btn.setStyleSheet("background-color:#4ade80; color:black; border-radius:6px; padding:6px;")
+        self.copy_code_btn.clicked.connect(self.copy_last_code_block)
+        layout.addWidget(self.copy_code_btn)
+
         send_icon = QIcon(os.path.join("halo", "ui", "assets", "send.svg"))
         self.send_btn.setIcon(send_icon)
         self.send_btn.setIconSize(QtCore.QSize(20,20))
@@ -144,6 +173,30 @@ class ChatPanel(QWidget):
         layout.addWidget(size_grip, 0, Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
 
         self.container.setLayout(layout)
+    
+    def _protect_window(self):
+        """
+        Prevent overlay from appearing in screen capture/screenshot.
+        Works on Windows 10+.
+        """
+        try:
+            hwnd = int(self.winId())  # Get native window handle
+            user32 = ctypes.windll.user32
+
+            # Constants
+            WDA_NONE = 0x0
+            WDA_MONITOR = 0x1
+            WDA_EXCLUDEFROMCAPTURE = 0x11  # Best option (Win 10 2004+)
+
+            # Try strongest protection first
+            if not user32.SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE):
+                # Fallback for slightly older Windows
+                user32.SetWindowDisplayAffinity(hwnd, WDA_MONITOR)
+
+            print("✅ Overlay protected from screenshots & screen share.")
+
+        except Exception as e:
+            print(f"⚠️ Could not protect overlay: {e}")
 
 
     def mousePressEvent(self, event):
@@ -166,7 +219,11 @@ class ChatPanel(QWidget):
         recent_messages = "\n".join(self.messages[-5:])  # recent chat lines
 
         # Combine incremental transcript + recent chat
-        full_query = f"{transcript_context}\n{recent_messages}\nUser: {user_text}"
+        selected_model = self.model_selector.currentText()
+        full_query = {
+            "prompt": f"{transcript_context}\n{recent_messages}\nUser: {user_text}",
+            "model": selected_model  # <-- Pass model name
+        }
 
         # Add user message to chat panel
         self.messages.append(f"User: {user_text}")
@@ -177,6 +234,7 @@ class ChatPanel(QWidget):
 
         # Update UI immediately
         self.update_chat_display()
+        self._protect_window()
 
         # Start worker
         self.worker = LLMWorker(full_query)
@@ -205,6 +263,21 @@ class ChatPanel(QWidget):
         cursor.movePosition(QTextCursor.MoveOperation.End)
         self.chat_box.setTextCursor(cursor)
 
+    def copy_last_code_block(self):
+        """
+        Search the last code block in self.reply_text (or messages) and copy it to clipboard.
+        """
+        # Search messages in reverse for a code block
+        for msg in reversed(self.messages):
+            code_match = re.search(r"```(.*?)```", msg, re.DOTALL)
+            if code_match:
+                code_text = code_match.group(1).strip()
+                clipboard = QApplication.clipboard()
+                clipboard.setText(code_text)
+                print("✅ Code copied to clipboard")
+                return
+
+        print("⚠️ No code block found to copy")
 
 
     def use_suggestion(self):
@@ -242,7 +315,7 @@ class FloatingOverlay(QWidget):
         self.update_transcript_signal.connect(self._update_transcript_ui)
 
         self.drag_position = None
-
+        
         self.container = QFrame(self)
         self.container.setStyleSheet("""
             QFrame {
@@ -317,6 +390,7 @@ class FloatingOverlay(QWidget):
         self.stop_llama_btn.setFixedHeight(30)
         self.stop_llama_btn.clicked.connect(self.stop_llama)
         layout.addWidget(self.stop_llama_btn)
+        self._protect_window()
 
         self.container.setLayout(layout)
 
@@ -332,22 +406,6 @@ class FloatingOverlay(QWidget):
         self.blink_timer.timeout.connect(self.blink_dot)
         self.blink_state = False
 
-        # Restore button
-        self.restore_btn = QPushButton("H")
-        self.restore_btn.setStyleSheet("""
-            QPushButton {
-                background: #667eea;
-                color: white;
-                font-weight: bold;
-                border-radius: 12px;
-                width: 32px;
-                height: 32px;
-            }
-        """)
-        self.restore_btn.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        self.restore_btn.move(10, 10)
-        self.restore_btn.clicked.connect(self.show_overlay)
-        self.restore_btn.show()
 
         # ----------------- Transcript panel -----------------
         self.transcript_panel = QTextEdit()
@@ -368,10 +426,35 @@ class FloatingOverlay(QWidget):
         self.transcript_btn.setFixedHeight(30)
         self.transcript_btn.clicked.connect(self.toggle_transcript_panel)
         layout.addWidget(self.transcript_btn)
+        
 
     def stop_llama(self):
         if self.chat_panel:
             self.chat_panel.stop_current_reply()
+
+    def _protect_window(self):
+        """
+        Prevent overlay from appearing in screen capture/screenshot.
+        Works on Windows 10+.
+        """
+        try:
+            hwnd = int(self.winId())  # Get native window handle
+            user32 = ctypes.windll.user32
+
+            # Constants
+            WDA_NONE = 0x0
+            WDA_MONITOR = 0x1
+            WDA_EXCLUDEFROMCAPTURE = 0x11  # Best option (Win 10 2004+)
+
+            # Try strongest protection first
+            if not user32.SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE):
+                # Fallback for slightly older Windows
+                user32.SetWindowDisplayAffinity(hwnd, WDA_MONITOR)
+
+            print("✅ Overlay protected from screenshots & screen share.")
+
+        except Exception as e:
+            print(f"⚠️ Could not protect overlay: {e}")
 
     def _update_transcript_ui(self, text):
     # Send transcript to the new panel, not chat_panel
